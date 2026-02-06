@@ -3,290 +3,170 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>لوحة الموارد البشرية</title>
+  <title>بوابة الموارد البشرية — نسخة محسّنة</title>
+
+  <!-- خطوط: قللنا الأوزان إلى 400 و700 فقط + display=swap -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
+    /* --- متغيرات خفيفة --- */
     :root{
-      --accent:#0B74DE;
-      --card:#fff;
-      --bg:#f3f5f7;
-      --muted:#666;
-      --shadow: 0 4px 12px rgba(15,25,35,0.08);
+      --primary:#264653;
+      --accent:#2a9d8f;
+      --muted:#6b7280;
+      --bg:#f6f7f9;
+      --card:#ffffff;
+      --radius:10px;
     }
-    *{box-sizing:border-box;font-family: "Segoe UI", Tahoma, Arial, sans-serif}
-    body{margin:0;background:var(--bg);color:#111;line-height:1.4}
-    .container{max-width:1100px;margin:24px auto;padding:16px}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    header h1{margin:0;font-size:20px}
-    .grid{display:grid;grid-template-columns:2fr 1fr;gap:12px}
-    .announcements{
-      background:var(--card);padding:20px;border-radius:10px;box-shadow:var(--shadow);
-      min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;position:relative;
+    /* Reset بسيط */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:'Cairo',system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background:var(--bg);color:#0f1724;line-height:1.5;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
     }
-    .carousel-text{font-size:20px}
-    .carousel-controls{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:8px}
-    .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
-    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(11,116,222,0.15)}
-    .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:var(--shadow)}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1100px;margin:0 auto;padding:18px}
+
+    /* Header */
+    header{
+      position:sticky;top:0;background:rgba(255,255,255,0.9);
+      backdrop-filter:none; /* expensive, removed */
+      border-bottom:1px solid rgba(15,20,30,0.04);
+      z-index:60;
+    }
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+    .logo{font-weight:700;color:var(--primary);font-size:1.15rem}
+    .nav-actions{display:flex;gap:8px;align-items:center}
+    .btn{padding:8px 14px;border-radius:999px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--primary)}
+
+    /* Hero أخف: نستخدم صورة أصغر وimage-set */
+    .hero{
+      position:relative;overflow:hidden;
+      display:flex;align-items:center;justify-content:center;text-align:center;
+      color:#fff;padding:80px 18px 60px;
+      min-height:56vh; /* أقل من 100vh لتقليل reflow على الموبايل */
+      border-radius:12px;
+      background-color:linear-gradient(180deg,#264653 0%, #2a9d8f 100%);
+    }
+    /* خلفية صورة عبر pseudo-element — يسمح بفصل paint وتحكّم بالـfilter */
+    .hero::before{
+      content:"";position:absolute;inset:0;z-index:0;
+      background-color:rgba(38,70,83,0.85);
+      /* image-set لتقديم مقاسات أصغر/أكبر */
+      background-image: image-set(
+        url("https://picsum.photos/id/1018/900/600") 1x,
+        url("https://picsum.photos/id/1018/1600/1066") 2x
+      );
+      background-size:cover;background-position:center center;
+      filter:contrast(0.9) brightness(0.6);
+      transform:translateZ(0); /* hint for GPU compositing */
+      will-change:transform,opacity;
+    }
+    .hero .content{position:relative;z-index:2;max-width:980px;padding:20px}
+    .hero h1{font-size:2rem;margin:0 0 10px;line-height:1.1}
+    .hero p{margin:0 0 16px;color:rgba(255,255,255,0.92);max-width:760px;margin-inline:auto}
+
+    .hero .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+    /* البطاقات الأساسية: إعلانات + وظائف + حجوزات */
+    .main-grid{display:grid;grid-template-columns:1fr 380px;gap:16px;margin-top:18px}
+    .card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:0 6px 14px rgba(16,24,40,0.04);min-height:80px}
+    .announcements{min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
     .jobs{min-height:300px}
-    .job-item{padding:10px;border-bottom:1px dashed #eee}
-    .right-col{display:flex;flex-direction:column;gap:12px}
-    .booking{min-height:140px;display:flex;align-items:center;justify-content:center;font-size:18px}
-    .footer-card{margin-top:12px;padding:12px;text-align:center}
-    .meta{color:var(--muted);font-size:14px;margin-top:8px}
-    .admin-bar{display:flex;gap:8px;align-items:center}
-    .controls-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;justify-content:center}
-    /* responsive */
-    @media(max-width:800px){
-      .grid{grid-template-columns:1fr;align-items:stretch}
-      .right-col{order:2}
-      .jobs{order:1}
+    .job-item{padding:10px;border-bottom:1px dashed rgba(0,0,0,0.04);display:flex;justify-content:space-between;align-items:center}
+    .booking{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:120px}
+    .muted{color:var(--muted);font-size:0.95rem}
+
+    /* Footer info */
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:0.95rem;padding:18px 0}
+
+    /* Responsive */
+    @media (max-width:900px){ .main-grid{grid-template-columns:1fr} .hero h1{font-size:1.6rem} }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none!important;transition:none!important}
     }
-    input,textarea,select{font-size:14px;padding:8px;border-radius:6px;border:1px solid #ddd;width:100%}
-    .small{font-size:13px;padding:6px 8px}
-    .hidden{display:none}
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>لوحة الموارد البشرية</h1>
-      <div class="admin-bar">
-        <button id="adminBtn" class="btn small">وضع المدير</button>
-        <button id="resetBtn" class="btn small ghost">إعادة ضبط (محلي)</button>
-      </div>
-    </header>
-
-    <main class="grid">
-      <section>
-        <div class="announcements card" id="annCard" aria-live="polite">
-          <div class="carousel-controls">
-            <button id="prevAnn" class="btn small">‹</button>
-            <button id="nextAnn" class="btn small">›</button>
-          </div>
-          <div id="annText" class="carousel-text">لا توجد إعلانات حالياً</div>
-          <div class="controls-row" id="annControls" style="margin-top:14px"></div>
-        </div>
-
-        <div class="card jobs" style="margin-top:12px">
-          <h3 style="margin:0 0 8px 0">قائمة الوظائف الشاغرة</h3>
-          <div id="jobsList">
-            <div class="meta">لم تُنشر وظائف حتى الآن.</div>
-          </div>
-          <div class="meta" style="margin-top:8px">يمكن للمدير إضافة وظيفة بسيطة هنا.</div>
-        </div>
-      </section>
-
-      <aside class="right-col">
-        <div class="card booking" style="flex-direction:column" id="largeBooking">
-          <strong>حجز القاعة الكبيرة</strong>
-          <div class="meta" style="margin-top:8px">اضغط للحجز</div>
-          <div style="margin-top:10px">
-            <button id="bookLarge" class="btn small">حجز الآن</button>
-          </div>
-        </div>
-
-        <div class="card booking" style="flex-direction:column" id="smallBooking">
-          <strong>حجز القاعة الصغيرة</strong>
-          <div class="meta" style="margin-top:8px">اضغط للحجز</div>
-          <div style="margin-top:10px">
-            <button id="bookSmall" class="btn small">حجز الآن</button>
-          </div>
-        </div>
-
-        <div class="card footer-card" id="contactCard">
-          <div><strong>معلومات الاتصال</strong></div>
-          <div class="meta" id="contactInfo">هاتف: 05x-xxxxxxx · ايميل: hr@example.com</div>
-        </div>
-      </aside>
-    </main>
-  </div>
-
-  <!-- Admin modals (simple inline) -->
-  <div id="adminPanel" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center">
-    <div style="width:640px;max-width:95%;background:#fff;padding:18px;border-radius:10px">
-      <h3 style="margin-top:0">لوحة المدير</h3>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div>
-          <label>إعلان جديد</label>
-          <textarea id="newAnn" rows="4" placeholder="أضف نص الإعلان هنا" style="width:100%"></textarea>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button id="addAnn" class="btn">أضف إعلان</button>
-            <button id="clearAnns" class="btn ghost">مسح الإعلانات</button>
-          </div>
-        </div>
-
-        <div>
-          <label>وظيفة جديدة (عنوان)</label>
-          <input id="newJobTitle" placeholder="اسم الوظيفة" />
-          <label style="margin-top:8px">وصف قصير</label>
-          <input id="newJobDesc" placeholder="وصف قصير" />
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button id="addJob" class="btn">أضف وظيفة</button>
-            <button id="clearJobs" class="btn ghost">مسح الوظائف</button>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
-        <button id="closeAdmin" class="btn ghost">إغلاق</button>
+  <header>
+    <div class="container nav">
+      <div class="logo">بوابة <span style="color:var(--accent)">الموارد البشرية</span></div>
+      <div class="nav-actions">
+        <button class="btn">تسجيل دخول</button>
+        <button class="btn ghost">تواصل</button>
       </div>
     </div>
-  </div>
+  </header>
+
+  <main class="container" role="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="content">
+        <h1 id="hero-title">لوحة الإعلانات والحجوزات — داخلية</h1>
+        <p>إعلانات شؤون الموظفين�� وظائف شاغرة وسُبل حجز القاعات. نسخة محسّنة للأداء تعمل بشكل جيّد على الأجهزة المتواضعة.</p>
+        <div class="actions">
+          <a class="btn" href="#announcements">عرض الإعلانات</a>
+          <a class="btn ghost" href="#jobs">الوظائف الشاغرة</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="main-grid" style="margin-bottom:12px">
+      <div>
+        <div id="announcements" class="card announcements" aria-live="polite">
+          <div style="font-weight:700">لوحة الإعلانات</div>
+          <div class="muted" style="margin-top:8px">لا توجد إعلانات حالياً</div>
+        </div>
+
+        <div id="jobs" class="card jobs" style="margin-top:12px">
+          <h3 style="margin:0 0 8px 0">قائمة الوظائف الشاغرة</h3>
+          <div class="muted">لم تُنشر وظائف حتى الآن.</div>
+        </div>
+      </div>
+
+      <aside style="display:flex;flex-direction:column;gap:12px">
+        <div class="card booking">
+          <strong>حجز القاعة الكبيرة</strong>
+          <div class="muted" style="margin-top:8px">اضغط للحجز</div>
+          <div style="margin-top:10px"><button class="btn" id="bookLarge">حجز الآن</button></div>
+        </div>
+
+        <div class="card booking">
+          <strong>حجز القاعة الصغيرة</strong>
+          <div class="muted" style="margin-top:8px">اضغط للحجز</div>
+          <div style="margin-top:10px"><button class="btn" id="bookSmall">حجز الآن</button></div>
+        </div>
+
+        <div class="card" style="text-align:center">
+          <div style="font-weight:700">معلومات الاتصال</div>
+          <div class="muted" style="margin-top:6px">هاتف: 05x-xxxxxxx · إيميل: hr@example.com</div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      &copy; <span id="year"></span> بوابة الموارد البشرية — نسخة محسّنة للأداء
+    </footer>
+  </main>
 
   <script>
-    // بسيطة: تخزين محلي وإدارة إعلانات ووظائف
-    const ADMIN_PASSWORD = '1234'; // غيّرها قبل النشر أو اعدل طريقة التوثيق
-    let anns = JSON.parse(localStorage.getItem('anns')||'[]');
-    let jobs = JSON.parse(localStorage.getItem('jobs')||'[]');
-    let annIndex = 0;
+    // بسيط — ربط أزرار الحجز إلى نماذج (ضع روابطك)
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.getElementById('bookLarge').addEventListener('click', ()=>{
+      // ضع را��ط Google Form هنا
+      window.open('https://docs.google.com/forms/d/e/PUT_YOUR_LARGE_FORM_ID/viewform','_blank');
+    });
+    document.getElementById('bookSmall').addEventListener('click', ()=>{
+      window.open('https://docs.google.com/forms/d/e/PUT_YOUR_SMALL_FORM_ID/viewform','_blank');
+    });
 
-    const annText = document.getElementById('annText');
-    const prevAnn = document.getElementById('prevAnn');
-    const nextAnn = document.getElementById('nextAnn');
-    const annControls = document.getElementById('annControls');
-    const jobsList = document.getElementById('jobsList');
-
-    function renderAnns(){
-      if(anns.length===0){
-        annText.textContent='لا توجد إعلانات حالياً';
-        annControls.innerHTML='';
-        return;
-      }
-      if(annIndex >= anns.length) annIndex = 0;
-      if(annIndex < 0) annIndex = anns.length-1;
-      annText.textContent = anns[annIndex];
-      annControls.innerHTML = `${annIndex+1} / ${anns.length}`;
-    }
-
-    function renderJobs(){
-      if(jobs.length===0){
-        jobsList.innerHTML = '<div class="meta">لم تُنشر وظائف حتى الآن.</div>';
-        return;
-      }
-      jobsList.innerHTML = jobs.map((j, i)=>`
-        <div class="job-item">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <strong>${escapeHtml(j.title)}</strong>
-              <div class="meta">${escapeHtml(j.desc)}</div>
-            </div>
-            <div>${isAdmin()? `<button data-i="${i}" class="btn small remove-job">حذف</button>` : ''}</div>
-          </div>
-        </div>
-      `).join('');
-      // attach delete handlers
-      document.querySelectorAll('.remove-job').forEach(btn=>{
-        btn.onclick = ()=> {
-          const i = +btn.dataset.i;
-          jobs.splice(i,1);
-          saveJobs();
-          renderJobs();
-        }
-      })
-    }
-
-    function saveAnns(){ localStorage.setItem('anns', JSON.stringify(anns)); }
-    function saveJobs(){ localStorage.setItem('jobs', JSON.stringify(jobs)); }
-
-    prevAnn.onclick = ()=>{ annIndex--; renderAnns(); }
-    nextAnn.onclick = ()=>{ annIndex++; renderAnns(); }
-
-    // auto rotate every 6s
-    setInterval(()=>{ if(anns.length>0){annIndex=(annIndex+1)%anns.length; renderAnns()} }, 6000);
-
-    // Admin panel controls
-    const adminBtn = document.getElementById('adminBtn');
-    const adminPanel = document.getElementById('adminPanel');
-    const addAnnBtn = document.getElementById('addAnn');
-    const newAnn = document.getElementById('newAnn');
-    const addJobBtn = document.getElementById('addJob');
-    const newJobTitle = document.getElementById('newJobTitle');
-    const newJobDesc = document.getElementById('newJobDesc');
-    const closeAdmin = document.getElementById('closeAdmin');
-    const clearAnnsBtn = document.getElementById('clearAnns');
-    const clearJobsBtn = document.getElementById('clearJobs');
-    const resetBtn = document.getElementById('resetBtn');
-
-    function isAdmin(){ return sessionStorage.getItem('isAdmin') === '1'; }
-
-    adminBtn.onclick = ()=>{
-      if(isAdmin()){
-        sessionStorage.removeItem('isAdmin');
-        adminBtn.textContent = 'وضع المدير';
-        adminPanel.classList.add('hidden');
-        renderJobs();
-      } else {
-        const pwd = prompt('أدخل كلمة مرور المدير:');
-        if(pwd === ADMIN_PASSWORD){
-          sessionStorage.setItem('isAdmin','1');
-          adminBtn.textContent = 'خروج المدير';
-          adminPanel.classList.remove('hidden');
-          renderJobs();
-        } else {
-          alert('كلمة المرور غير صحيحة');
-        }
-      }
-    }
-
-    closeAdmin.onclick = ()=> adminPanel.classList.add('hidden');
-
-    addAnnBtn.onclick = ()=>{
-      const t = newAnn.value.trim();
-      if(!t){ alert('اكتب نص الإعلان'); return; }
-      anns.unshift(t);
-      saveAnns();
-      newAnn.value='';
-      annIndex = 0;
-      renderAnns();
-      alert('تم إضافة الإعلان (محلياً)');
-    }
-    clearAnnsBtn.onclick = ()=>{
-      if(confirm('مسح كل الإعلانات (محلياً)؟')){ anns=[]; saveAnns(); renderAnns(); }
-    }
-
-    addJobBtn.onclick = ()=>{
-      const title = newJobTitle.value.trim();
-      const desc = newJobDesc.value.trim();
-      if(!title){ alert('أدخل عنوان الوظيفة'); return; }
-      jobs.unshift({title,desc});
-      saveJobs();
-      newJobTitle.value=''; newJobDesc.value='';
-      renderJobs();
-      alert('تم إضافة الوظيفة (محلياً)');
-    }
-    clearJobsBtn.onclick = ()=>{
-      if(confirm('مسح كل الوظائف (محلياً)؟')){ jobs=[]; saveJobs(); renderJobs(); }
-    }
-
-    resetBtn.onclick = ()=>{
-      if(confirm('إعادة ضبط كل البيانات المحفوظة في المتصفح؟')){ localStorage.clear(); sessionStorage.clear(); anns=[]; jobs=[]; renderAnns(); renderJobs(); alert('تمت إعادة الضبط محلياً'); }
-    }
-
-    // Booking buttons — يمكن ربطها إلى Google Form أو أي خدمة استقبال
-    document.getElementById('bookLarge').onclick = ()=> {
-      // ضع هنا رابط نموذج Google Form الخاص بحجوزات القاعة الكبيرة
-      const formUrl = 'https://docs.google.com/forms/d/e/PUT_YOUR_LARGE_FORM_ID/viewform';
-      window.open(formUrl,'_blank');
-    };
-    document.getElementById('bookSmall').onclick = ()=> {
-      // ضع هنا رابط نموذج Google Form الخاص بحجوزات القاعة الصغيرة
-      const formUrl = 'https://docs.google.com/forms/d/e/PUT_YOUR_SMALL_FORM_ID/viewform';
-      window.open(formUrl,'_blank');
-    };
-
-    // utils
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])); }
-
-    // initial render
-    renderAnns();
-    renderJobs();
-
-    // show admin panel automatically if session active
-    if(isAdmin()) adminPanel.classList.remove('hidden');
-
-    // small notice: replace form links in JS before deploy
+    // نصيحة: تحميل الإعلانات/الوظائف من JSON/Firestore لاحقاً بدلاً من localStorage
   </script>
 </body>
 </html>
